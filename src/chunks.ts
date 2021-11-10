@@ -23,21 +23,21 @@ const sigBits = (val: number): number => {
   return Math.floor(Math.log(val)/Math.log(2))+1;
 };
 
-const countTrailingZeros = (val: number) => {
-  let count = 0;
-  for (let i = 1; i < 5; i++) {
-    const notAZero = val % Math.pow(2, i);
-    if (notAZero) {
-      break;
-    }
-    count++;
-  }
-  return count;
-};
+// const countTrailingZeros = (val: number) => {
+//   let count = 0;
+//   for (let i = 1; i < 5; i++) {
+//     const notAZero = val % Math.pow(2, i);
+//     if (notAZero) {
+//       break;
+//     }
+//     count++;
+//   }
+//   return count;
+// };
 
 export type PartialChunk = {
   bits: number;
-  length: number;
+  length: number; // necessary because leading 0 will be dropped
 }
 
 export const combinePartials = (
@@ -48,38 +48,29 @@ export const combinePartials = (
     // eslint-disable-next-line max-len
     throw new Error(`Combined length of partial chunks must be 5 (${left.length} + ${right.length} != 5)`);
   }
-  const lVal = sigBits(left.bits) === left.length ?
-  left.bits << 5 - left.length : left.bits << sigBits(left.bits);
-  const rVal = sigBits(right.bits) === right.length ?
-  right.bits >>> 5 - right.length : right.bits >>> sigBits(right.bits);
-  // const lVal = left.bits << left.length;
-  // const rVal = right.bits >>> right.length;
-  return lVal + rVal;
-};
+  // const leftSigBits = sigBits(left.bits);
+  // const rightSigBits = sigBits(right.bits);
+  // const leftShift = left.length < leftSigBits
+  // if ((sigBits(left.bits) + sigBits(right.bits)) > 5) {
+  // eslint-disable-next-line max-len
+  //   throw new Error(`Combined significant bits of partial chunks must be less than 5 (${sigBits(left.bits)} + ${right.bits} >= 5)`);
+  // }
+  return (left.bits << right.length) + right.bits;
+  // const leftSigBits = sigBits(left.bits);
+  // const rightSigBits = sigBits(right.bits);
+  // // const leftShift = leftSigBits < left.length
+  // // ? (5 - left.length) + (left.length - leftSigBits) : 5 - left.length;
+  // // const leftShift = rightSigBits < leftSigBits ? rightSigBits :
+  // const leftShift = right.length;
+  // const lVal = left.bits << length;
 
-export const combinePartialsOld = (left: number, right: number): number => {
-  const leftShift = 5 - sigBits(left);
-  left = left << leftShift;
-  const ltz = countTrailingZeros(left);
-  // const rtz = countTrailingZeros(right);
-  const rightShift = sigBits(right) <= ltz ? 0 : 5 - ltz;
-  // eslint-disable-next-line max-len
-  // const rightShift = sigBits(right) < leftShift  ? leftShift - sigBits(right) : 0;
-  // const tz = countTrailingZeros(left);
-  // eslint-disable-next-line max-len
-  // const rightShift = sigBits(right) > leftShift ? sigBits(right) - leftShift : 0;
-  // const rightShift = leftShift ? 5 - leftShift : 0;
-  // const rightShift = sigBits(left) + sigBits() >?
-  // const rightShift = countTrailingZeros(right);
-  // const rightShift = leftShift ? sigBits(right) - leftShift : 0;
-  // const rightShift = (5 - leftShift) - sigBits(right);
-  right = right >>> rightShift;
-  const chunk = left + right;
-  if (chunk > 0b11111) {
-    // eslint-disable-next-line max-len
-    throw new Error(`Invalid partials: ${left} + ${right} greater than 31 (0b11111)`);
-  }
-  return chunk;
+  // // const lVal = sigBits(left.bits) === left.length ?
+  // // left.bits << 5 - left.length : left.bits << sigBits(left.bits);
+  // // const rVal = sigBits(right.bits) === right.length ?
+  // // right.bits >>> 5 - right.length : right.bits >>> sigBits(right.bits);
+  // // const lVal = left.bits << left.length;
+  // // const rVal = right.bits >>> right.length;
+  // return lVal & rVal;
 };
 
 export const byteToChunk = (val: number, mask: string): number => {
