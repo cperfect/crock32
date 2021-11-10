@@ -15,7 +15,6 @@ export const getCopyMask = (
       mask = mask.concat('0');
     }
   }
-  // return Number.parseInt(mask, 2);
   return mask;
 };
 
@@ -23,21 +22,9 @@ const sigBits = (val: number): number => {
   return Math.floor(Math.log(val)/Math.log(2))+1;
 };
 
-// const countTrailingZeros = (val: number) => {
-//   let count = 0;
-//   for (let i = 1; i < 5; i++) {
-//     const notAZero = val % Math.pow(2, i);
-//     if (notAZero) {
-//       break;
-//     }
-//     count++;
-//   }
-//   return count;
-// };
-
 export type PartialChunk = {
   bits: number;
-  length: number; // necessary because leading 0 will be dropped
+  length: number; // num of bits needed (starting from right/least sig inc.)
 }
 
 export const combinePartials = (
@@ -48,29 +35,7 @@ export const combinePartials = (
     // eslint-disable-next-line max-len
     throw new Error(`Combined length of partial chunks must be 5 (${left.length} + ${right.length} != 5)`);
   }
-  // const leftSigBits = sigBits(left.bits);
-  // const rightSigBits = sigBits(right.bits);
-  // const leftShift = left.length < leftSigBits
-  // if ((sigBits(left.bits) + sigBits(right.bits)) > 5) {
-  // eslint-disable-next-line max-len
-  //   throw new Error(`Combined significant bits of partial chunks must be less than 5 (${sigBits(left.bits)} + ${right.bits} >= 5)`);
-  // }
   return (left.bits << right.length) + right.bits;
-  // const leftSigBits = sigBits(left.bits);
-  // const rightSigBits = sigBits(right.bits);
-  // // const leftShift = leftSigBits < left.length
-  // // ? (5 - left.length) + (left.length - leftSigBits) : 5 - left.length;
-  // // const leftShift = rightSigBits < leftSigBits ? rightSigBits :
-  // const leftShift = right.length;
-  // const lVal = left.bits << length;
-
-  // // const lVal = sigBits(left.bits) === left.length ?
-  // // left.bits << 5 - left.length : left.bits << sigBits(left.bits);
-  // // const rVal = sigBits(right.bits) === right.length ?
-  // // right.bits >>> 5 - right.length : right.bits >>> sigBits(right.bits);
-  // // const lVal = left.bits << left.length;
-  // // const rVal = right.bits >>> right.length;
-  // return lVal & rVal;
 };
 
 export const byteToChunk = (val: number, mask: string): number => {
@@ -99,8 +64,6 @@ export const toChunks = (uint8: Uint8Array): number[] => {
         length: 5 - (endChunk - startChunk),
       });
       chunks.push(chunk);
-      // eslint-disable-next-line max-len
-      // chunks[chunks.length-1] = combinePartialsOld(chunks[chunks.length-1], partialChunk);
       startChunk = endChunk + 1;
       endChunk = (startChunk + 5) <= 8 ? (startChunk + 5) : 8;
     }
@@ -119,16 +82,13 @@ export const toChunks = (uint8: Uint8Array): number[] => {
         let chunk = byteToChunk(byte, mask);
         chunk = byteToChunk(chunk, getCopyMask(0, sigBits(chunk)-1, 8));
         chunks.push(chunk);
-        // right pad the last chunk with 0 if necessary
-        // eslint-disable-next-line max-len
-        // partialChunk = byteToChunk(partialChunk, getCopyMask(0, sigBits(partialChunk)-1, 8));//tehnically a complete chunk
-      } else { // we expect to find the 'right' partial in the next byte
+      } else {
+        // we expect to find the 'right' partial in the next byte
         partialChunk = {
           bits: byteToChunk(byte, mask),
           length: 5 - (endChunk - startChunk),
         };
       }
-      // chunks.push(partialChunk);
       endChunk = (startChunk + 5) % 8;
       startChunk = 1;
     }
