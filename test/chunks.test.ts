@@ -140,7 +140,7 @@ describe('To Chunks', () => {
     ]);
     const chunks = toChunks(uint8);
     // eslint-disable-next-line max-len
-    expect(chunks).to.equal([
+    expect(chunks).to.deep.equal([
       0b10101,
       0b01011,
       0b11111,
@@ -148,4 +148,14 @@ describe('To Chunks', () => {
       0b01000, // padded with 1 trailing zero
     ]);
   });
+  // it('', () => {
+  //   const uint8 = Uint8Array.from([
+  //     0b00010101,
+  //   ]);
+  //   const chunks = toChunks(uint8);
+  //   // eslint-disable-next-line max-len
+  //   expect(chunks).to.deep.equal([
+  //     0b10101,
+  //   ]);
+  // });
 });
