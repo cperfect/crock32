@@ -61,18 +61,18 @@ export const toChunks = (uint8: Uint8Array): number[] => {
       }
       const chunk = combinePartials(partialChunk, {
         bits: byteToChunk(byte, mask),
-        length: 5 - (endChunk - startChunk),
+        length: (endChunk - startChunk)+1,
       });
       chunks.push(chunk);
       startChunk = endChunk + 1;
-      endChunk = (startChunk + 5) <= 8 ? (startChunk + 5) : 8;
+      endChunk = (startChunk + 4) <= 8 ? (startChunk + 4) : 8;
     }
 
     if (startChunk + 5 <= 8) {
       const mask = getCopyMask(startChunk, endChunk, 8);
       chunks.push(byteToChunk(byte, mask));
       startChunk = endChunk + 1;
-      endChunk = (startChunk + 5) < 8 ? (startChunk + 5) : 8;
+      endChunk = (startChunk + 4) < 8 ? (startChunk + 4) : 8;
     }
 
     if (startChunk < 8) { // we have a 'left' partial
@@ -89,7 +89,7 @@ export const toChunks = (uint8: Uint8Array): number[] => {
           length: 5 - (endChunk - startChunk),
         };
       }
-      endChunk = (startChunk + 5) % 8;
+      endChunk = (startChunk + 4) % 8;
       startChunk = 1;
     }
   });

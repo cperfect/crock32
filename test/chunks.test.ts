@@ -60,6 +60,10 @@ describe('Byte to Chunk', () => {
     const b = byteToChunk(0b01110110, getCopyMask(1, 3, 8));
     expect(b).to.equal(0b11);
   });
+  it('0b11111111, 3, 8,7 => 0b11111', () => {
+    const b = byteToChunk(0b11111111, getCopyMask(3, 7, 8));
+    expect(b, `got ${b.toString(2)}`).to.equal(0b11111);
+  });
 });
 
 describe('Combine Partials', () => {
@@ -114,13 +118,13 @@ describe('Combine Partials', () => {
     },
     {
       bits: 0b001,
-      length: 1, // acount for 001 with leading 0s dropped
+      length: 1,
     });
     expect(c, `got ${c.toString(2)}`).to.equal(0b10001);
   });
 });
 
-xdescribe('To Chunks', () => {
+describe('To Chunks', () => {
   it('', () => {
     const uint8 = Uint8Array.from([
       0b10101010,
@@ -128,6 +132,7 @@ xdescribe('To Chunks', () => {
       0b10110100,
     ]);
     const chunks = toChunks(uint8);
+    // eslint-disable-next-line max-len
     expect(chunks).to.equal([
       0b10101,
       0b01011,
