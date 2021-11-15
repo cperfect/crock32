@@ -132,7 +132,7 @@ describe('Combine Partials', () => {
 });
 
 describe('To Chunks', () => {
-  it('', () => {
+  it('multiple bytes with padding', () => {
     const uint8 = Uint8Array.from([
       0b10101010,
       0b11111111,
@@ -148,14 +148,36 @@ describe('To Chunks', () => {
       0b01000, // padded with 1 trailing zero
     ]);
   });
-  // it('', () => {
-  //   const uint8 = Uint8Array.from([
-  //     0b00010101,
-  //   ]);
-  //   const chunks = toChunks(uint8);
-  //   // eslint-disable-next-line max-len
-  //   expect(chunks).to.deep.equal([
-  //     0b10101,
-  //   ]);
-  // });
+  it('single byte', () => {
+    const uint8 = Uint8Array.from([
+      0b10101000,
+    ]);
+    const chunks = toChunks(uint8);
+    // eslint-disable-next-line max-len
+    expect(chunks).to.deep.equal([
+      0b10101,
+      0b00000,
+    ]);
+  });
+  it('multiple bytes without padding', () => {
+    const uint8 = Uint8Array.from([
+      0b10101010,
+      0b11111111,
+      0b10110100,
+      0b11110000,
+      0b00001111,
+    ]);
+    const chunks = toChunks(uint8);
+    // eslint-disable-next-line max-len
+    expect(chunks).to.deep.equal([
+      0b10101,
+      0b01011,
+      0b11111,
+      0b11011,
+      0b01001,
+      0b11100,
+      0b00000,
+      0b01111, // no padding
+    ]);
+  });
 });
