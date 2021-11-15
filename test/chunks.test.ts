@@ -7,31 +7,38 @@ import {
 describe('Get Copy Mask', () => {
   it('1,3 on 8 bits => 11100000', () => {
     const m = getCopyMask(1, 3, 8);
-    expect(m).to.equal('11100000');
+    expect(m).to
+        .deep.equal({bits: Number.parseInt('11100000', 2), leftShift: 5});
   });
   it('1,5 on 8 bits => 11111000', () => {
     const m = getCopyMask(1, 5, 8);
-    expect(m).to.equal('11111000');
+    expect(m).to
+        .deep.equal({bits: Number.parseInt('11111000', 2), leftShift: 3});
   });
   it('3,7 on 8 bits => 00111110', () => {
     const m = getCopyMask(3, 7, 8);
-    expect(m).to.equal('00111110');
+    expect(m).to
+        .deep.equal({bits: Number.parseInt('00111110', 2), leftShift: 1});
   });
   it('2,6 on 8 bits => 01111100', () => {
     const m = getCopyMask(2, 6, 8);
-    expect(m).to.equal('01111100');
+    expect(m).to
+        .deep.equal({bits: Number.parseInt('01111100', 2), leftShift: 2});
   });
   it('5,8 on 8 bits => 00001111', () => {
     const m = getCopyMask(5, 8, 8);
-    expect(m).to.equal('00001111');
+    expect(m).to
+        .deep.equal({bits: Number.parseInt('00001111', 2), leftShift: 0});
   });
   it('2,5 on 5 bits => 01111', () => {
     const m = getCopyMask(2, 5, 5);
-    expect(m).to.equal('01111');
+    expect(m).to
+        .deep.equal({bits: Number.parseInt('01111', 2), leftShift: 0});
   });
   it('1,3 on 5 bits => 11100', () => {
     const m = getCopyMask(1, 3, 5);
-    expect(m).to.equal('11100');
+    expect(m).to
+        .deep.equal({bits: Number.parseInt('11100', 2), leftShift: 2});
   });
 });
 

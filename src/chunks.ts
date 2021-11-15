@@ -1,10 +1,16 @@
 // masks for bitwise copying
+export type CopyMask = {
+  bits: number;
+  leftShift: number;
+}
+
 export const getCopyMask = (
     start: number, end: number, bitLength: number,
-): string => {
+): CopyMask => {
   if (start < 1 || start > bitLength || end <= start || end > bitLength) {
     throw new Error(`Invalid start & end : ${start} & ${end}`);
   }
+  let leftShift = 0;
   let mask = '';
   for (let i = 1; i <= bitLength; i++) {
     if (i < start) {
@@ -12,10 +18,14 @@ export const getCopyMask = (
     } else if (start <= i && i <= end) {
       mask = mask.concat('1');
     } else {
+      leftShift = leftShift + 1;
       mask = mask.concat('0');
     }
   }
-  return mask;
+  return {
+    bits: Number.parseInt(mask, 2),
+    leftShift,
+  };
 };
 
 const sigBits = (val: number): number => {
@@ -38,13 +48,9 @@ export const combinePartials = (
   return (left.bits << right.length) + right.bits;
 };
 
-export const byteToChunk = (val: number, mask: string): number => {
-  const maskNum = Number.parseInt(mask, 2);
-  const trailingZeroIndex = mask.replace(/^0+/, '-')
-      .indexOf('0'); // we will get -1 if no trailing zeros
-  const shift = trailingZeroIndex !== -1 ? 8 - trailingZeroIndex: 0;
-  const bits = val & maskNum;
-  return bits >> shift;
+export const byteToChunk = (val: number, mask: CopyMask): number => {
+  const bits = val & mask.bits;
+  return bits >> mask.leftShift;
 };
 
 export const toChunks = (uint8: Uint8Array): number[] => {
