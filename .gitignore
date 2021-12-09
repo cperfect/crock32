@@ -1,5 +1,7 @@
-# vscode
-.vscode/
+# vscode but include launch.json
+.vscode/*
+!.vscode/launch.json
+
 
 #scratch dirs
 **/scratch/
