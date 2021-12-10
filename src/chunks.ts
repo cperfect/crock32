@@ -35,13 +35,13 @@ export type PartialChunk = {
 }
 
 // combine two partial chunks into a complete chunk
-export const combinePartials = (
+export const combinePartialChunks = (
     left: PartialChunk,
     right: PartialChunk,
 ): number => {
   if (left.length + right.length != 5) {
     // eslint-disable-next-line max-len
-    throw new Error(`Combined length of partial chunks must be 5 (${left.length} + ${right.length} != 5)`);
+    throw new Error(`Combined length of partial chunks must be 5: (${left.length} + ${right.length} != 5)`);
   }
   return (left.bits << right.length) + right.bits;
 };
@@ -64,7 +64,7 @@ const getEndChunk = (
   return start + 5 <= 8 ? start + 5 : 8;
 };
 
-// split array of bytes into 5 bit chunks (2^5 = 32)
+// copy an array of bytes into an array of 5 bit chunks (2^5 = 32)
 export const toChunks = (uint8: Uint8Array): number[] => {
   const chunks = [] as number[];
   let startChunk = 1; // 1 index on a byte
@@ -77,7 +77,7 @@ export const toChunks = (uint8: Uint8Array): number[] => {
         // eslint-disable-next-line max-len
         throw new Error(`Found right partial without left partial in byte ${idx}`);
       }
-      const chunk = combinePartials(partialChunk, {
+      const chunk = combinePartialChunks(partialChunk, {
         bits: byteToChunk(byte, mask),
         length: (endChunk - startChunk)+1,
       });
@@ -99,12 +99,14 @@ export const toChunks = (uint8: Uint8Array): number[] => {
         bits: byteToChunk(byte, mask),
         length: (endChunk - startChunk)+1,
       };
+      // if we are on the last byte
       if (idx == uint8.length - 1) {
+        // right pad any left over space in last chunk
         const padding = {
           bits: 0,
           length: 5 - partialChunk.length,
         };
-        const chunk = combinePartials(partialChunk, padding);
+        const chunk = combinePartialChunks(partialChunk, padding);
         chunks.push(chunk);
       } else {
         endChunk = getEndChunk(startChunk-1, true);
@@ -115,6 +117,103 @@ export const toChunks = (uint8: Uint8Array): number[] => {
   return chunks;
 };
 
-// export const fromChunks = (chunks: number[]): Uint8Array => {
+const partialBytesLength = (
+    partials: PartialChunk[],
+): number => {
+  return partials.length ?
+    partials
+        .map((p) => p.length)
+        .reduce((prev, curr) => prev + curr) :
+    0;
+};
 
-// };
+// combine two or three partial bytes into a complete byte
+export const combinePartialBytes = (
+    partials: PartialChunk[],
+): number => {
+  const length = partialBytesLength(partials);
+  if (length != 8) {
+    // eslint-disable-next-line max-len
+    throw new Error(`Combined length of partial bytes must be 8: was ${length})`);
+  }
+  return partials.reduce((left, right) => {
+    return {
+      bits: (left.bits << right.length) + right.bits,
+      length: left.length + right.length,
+    };
+  }).bits;
+};
+
+const getEndByte = (
+    start: number,
+    partialBits: number,
+): number => {
+  const toEndOfByte = 8 - partialBits;
+  if (toEndOfByte >= 5) {
+    return 5;
+  } else {
+    return start + (toEndOfByte - 1);
+  }
+};
+
+// copy an array of 5 bit chunks into an array of bytes
+export const fromChunks = (chunks: number[]): Uint8Array => {
+  const bytes = [] as number[];
+  let startByte = 1; // 1 index on a chunk
+  let endByte = 5;
+  let partialBytes = [] as PartialChunk[];
+
+  const mayfinishByte = () => {
+    if (partialBytesLength(partialBytes) === 8) {
+      bytes.push(combinePartialBytes(partialBytes));
+      partialBytes = [] as PartialChunk[];
+    }
+  };
+
+  chunks.forEach((chunk, idx) => {
+    if (startByte === 1 && endByte < 5) {
+      // we need less than the full chunk
+      const mask = getCopyMask(startByte, endByte, 5);
+      partialBytes.push({
+        bits: byteToChunk(chunk, mask),
+        length: (endByte - startByte)+1,
+      });
+      mayfinishByte();
+      startByte = endByte + 1;
+      endByte = getEndByte(startByte, partialBytesLength(partialBytes));
+    } else if (startByte > 1 && endByte < 5) {
+      // we need a inner segment of the chunk
+      const mask = getCopyMask(startByte, endByte, 5);
+      partialBytes.push({
+        bits: byteToChunk(chunk, mask),
+        length: (endByte - startByte)+1,
+      });
+      mayfinishByte();
+      startByte = endByte+1;
+      endByte = getEndByte(startByte, partialBytesLength(partialBytes));
+    }
+
+    if (startByte === 1 && endByte === 5) {
+      // we need the entire chunk
+      const mask = getCopyMask(startByte, endByte, 5);
+      partialBytes.push({
+        bits: byteToChunk(chunk, mask),
+        length: (endByte - startByte)+1,
+      });
+      mayfinishByte();
+      startByte = 1;
+      endByte = getEndByte(startByte, partialBytesLength(partialBytes));
+    } else if (startByte > 1 && endByte === 5) {
+      // we need the rest of the chunk
+      const mask = getCopyMask(startByte, endByte, 5);
+      partialBytes.push({
+        bits: byteToChunk(chunk, mask),
+        length: (endByte - startByte)+1,
+      });
+      mayfinishByte();
+      startByte = 1;
+      endByte = getEndByte(startByte, partialBytesLength(partialBytes));
+    }
+  });
+  return Uint8Array.from(bytes);
+};
