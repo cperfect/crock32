@@ -1,0 +1,36 @@
+name: Validate
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  
+  workflow_dispatch:
+
+jobs:
+  lint:
+    name: Validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+          cache: npm
+      
+      - name: NPM Install
+        run: npm install
+      
+      - name: Run Lint Check
+        run: npm run lint
+      
+      - name: Run Tests
+        run: npm run tests
+
+
+
+  
