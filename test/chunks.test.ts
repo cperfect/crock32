@@ -242,20 +242,19 @@ describe('Combine Partial Bytes', () => {
     expect(c, `got ${c.toString(2)}`).to.equal(0b11111011);
   });
   it('0b00111, 0b00011 < 0 => 0b11111', () => {
-    expect(function() {
-      combinePartialBytes(
-          [
-            {
-              bits: 0b00111,
-              length: 3,
-            },
-            {
-              bits: 0b00011,
-              length: 2,
-            },
-          ],
-      );
-    }).to.throw(Error);
+    const c = combinePartialBytes(
+        [
+          {
+            bits: 0b00111,
+            length: 3,
+          },
+          {
+            bits: 0b00011,
+            length: 2,
+          },
+        ],
+    );
+    expect(c, `got ${c.toString(2)}`).to.equal(0b11111000);
   });
   it('0b00111, 0b00011 < 0 => 0b11111', () => {
     expect(function() {
@@ -280,7 +279,7 @@ describe('Combine Partial Bytes', () => {
 });
 
 describe('From Chunks', () => {
-  it('multiple bytes with padding', () => {
+  it('multiple chunks with padding', () => {
     const chunks = [
       0b10101,
       0b01011,
@@ -290,42 +289,39 @@ describe('From Chunks', () => {
     ];
     const uint8 = fromChunks(chunks);
     // eslint-disable-next-line max-len
-    expect(uint8).to.deep.equal([
+    expect(uint8).to.deep.equal(Uint8Array.from([
       0b10101010,
       0b11111111,
       0b10110100,
-    ]);
+    ]));
   });
-  // it('single byte', () => {
-  //   const uint8 = Uint8Array.from([
-  //     0b10101000,
-  //   ]);
-  //   const chunks = toChunks(uint8);
-  //   // eslint-disable-next-line max-len
-  //   expect(chunks).to.deep.equal([
-  //     0b10101,
-  //     0b00000,
-  //   ]);
-  // });
-  // it('multiple bytes without padding', () => {
-  //   const uint8 = Uint8Array.from([
-  //     0b10101010,
-  //     0b11111111,
-  //     0b10110100,
-  //     0b11110000,
-  //     0b00001111,
-  //   ]);
-  //   const chunks = toChunks(uint8);
-  //   // eslint-disable-next-line max-len
-  //   expect(chunks).to.deep.equal([
-  //     0b10101,
-  //     0b01011,
-  //     0b11111,
-  //     0b11011,
-  //     0b01001,
-  //     0b11100,
-  //     0b00000,
-  //     0b01111, // no padding
-  //   ]);
-  // });
+  it('single chunk', () => {
+    const chunks = [
+      0b10101,
+    ];
+    const uint8 = fromChunks(chunks);
+    expect(uint8).to.deep.equal(Uint8Array.from([
+      0b10101000,
+    ]));
+  });
+  it('multiple chunks without padding', () => {
+    const chunks = [
+      0b10101,
+      0b01011,
+      0b11111,
+      0b11011,
+      0b01001,
+      0b11100,
+      0b00000,
+      0b01111, // no padding
+    ];
+    const uint8 = fromChunks(chunks);
+    expect(uint8).to.deep.equal(Uint8Array.from([
+      0b10101010,
+      0b11111111,
+      0b10110100,
+      0b11110000,
+      0b00001111,
+    ]));
+  });
 });
