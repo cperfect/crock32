@@ -28,15 +28,13 @@ export const getCopyMask = (
   };
 };
 
-// const sigBits = (val: number): number => {
-//   return Math.floor(Math.log(val)/Math.log(2))+1;
-// };
-
+// less than 5 bits of data
 export type PartialChunk = {
   bits: number;
   length: number; // num of bits needed (starting from right/least sig inc.)
 }
 
+// combine two partial chunks into a complete chunk
 export const combinePartials = (
     left: PartialChunk,
     right: PartialChunk,
@@ -48,18 +46,25 @@ export const combinePartials = (
   return (left.bits << right.length) + right.bits;
 };
 
+// extrack a chunk from a byte based on a mask
 export const byteToChunk = (val: number, mask: CopyMask): number => {
   const bits = val & mask.bits;
   return bits >> mask.leftShift;
 };
 
-const moveWindowBoundary = (boundary: number, acrossByte?: boolean) => {
+// get the next chunk end boundary
+// from a starting position
+const getEndChunk = (
+    start: number,
+    acrossByte?: boolean, // true if there will be byte boundary in between
+): number => {
   if (acrossByte) {
-    return boundary + 5 <= 8 ? boundary + 5 : (boundary + 5) % 8;
+    return start + 5 <= 8 ? start + 5 : (start + 5) % 8;
   }
-  return boundary + 5 <= 8 ? boundary + 5 : 8;
+  return start + 5 <= 8 ? start + 5 : 8;
 };
 
+// split array of bytes into 5 bit chunks (2^5 = 32)
 export const toChunks = (uint8: Uint8Array): number[] => {
   const chunks = [] as number[];
   let startChunk = 1; // 1 index on a byte
@@ -78,14 +83,14 @@ export const toChunks = (uint8: Uint8Array): number[] => {
       });
       chunks.push(chunk);
       startChunk = endChunk + 1;
-      endChunk = moveWindowBoundary(endChunk);
+      endChunk = getEndChunk(endChunk);
     }
 
-    if (startChunk + 5 <= 8) {
+    if (startChunk + 5 <= 8) { // we have entire chunk
       const mask = getCopyMask(startChunk, endChunk, 8);
       chunks.push(byteToChunk(byte, mask));
       startChunk = endChunk + 1;
-      endChunk = moveWindowBoundary(endChunk);
+      endChunk = getEndChunk(endChunk);
     }
 
     if (startChunk <= 8) { // we have a 'left' partial
@@ -102,7 +107,7 @@ export const toChunks = (uint8: Uint8Array): number[] => {
         const chunk = combinePartials(partialChunk, padding);
         chunks.push(chunk);
       } else {
-        endChunk = moveWindowBoundary(startChunk-1, true);
+        endChunk = getEndChunk(startChunk-1, true);
         startChunk = 1;
       }
     }
