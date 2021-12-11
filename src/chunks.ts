@@ -28,16 +28,16 @@ export const getCopyMask = (
   };
 };
 
-// less than 5 bits of data
-export type PartialChunk = {
+// less than a byte or chunk of data
+export type Partial = {
   bits: number;
   length: number; // num of bits needed (starting from right/least sig inc.)
 }
 
 // combine two partial chunks into a complete chunk
 export const combinePartialChunks = (
-    left: PartialChunk,
-    right: PartialChunk,
+    left: Partial,
+    right: Partial,
 ): number => {
   if (left.length + right.length != 5) {
     // eslint-disable-next-line max-len
@@ -57,7 +57,7 @@ export const toChunks = (uint8: Uint8Array): number[] => {
   const chunks = [] as number[];
   let startChunk = 1; // 1 index on a byte
   let endChunk = 5;
-  let partialChunk: PartialChunk | null = null;
+  let partialChunk: Partial | null = null;
 
   // get the next chunk end boundary
   // from a starting position
@@ -119,7 +119,7 @@ export const toChunks = (uint8: Uint8Array): number[] => {
 };
 
 const partialBytesLength = (
-    partials: PartialChunk[],
+    partials: Partial[],
 ): number => {
   return partials.length ?
     partials
@@ -130,7 +130,7 @@ const partialBytesLength = (
 
 // combine two or three partial bytes into a complete byte
 export const combinePartialBytes = (
-    partials: PartialChunk[],
+    partials: Partial[],
 ): number => {
   const length = partialBytesLength(partials);
   if (length !== 8) {
@@ -150,7 +150,7 @@ export const fromChunks = (chunks: number[]): Uint8Array => {
   const bytes = [] as number[];
   let startByte = 1; // 1 index on a chunk
   let endByte = 5;
-  let partialBytes = [] as PartialChunk[];
+  let partialBytes = [] as Partial[];
 
   const getEndByte = (
       start: number,
@@ -172,7 +172,7 @@ export const fromChunks = (chunks: number[]): Uint8Array => {
     });
     if (partialBytesLength(partialBytes) === 8) {
       bytes.push(combinePartialBytes(partialBytes));
-      partialBytes = [] as PartialChunk[];
+      partialBytes = [] as Partial[];
     }
   };
 
