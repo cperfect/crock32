@@ -182,13 +182,8 @@ export const fromChunks = (chunks: number[]): Uint8Array => {
   };
 
   chunks.forEach((chunk, idx) => {
-    if (startByte === 1 && endByte < 5) {
+    if (endByte < 5) {
       // we need less than the full chunk
-      consumeBits(chunk, startByte, endByte);
-      startByte = endByte + 1;
-      endByte = getEndByte(startByte, partialBytesLength(partialBytes));
-    } else if (startByte > 1 && endByte < 5) {
-      // we need a inner segment of the chunk
       consumeBits(chunk, startByte, endByte);
       startByte = endByte + 1;
       endByte = getEndByte(startByte, partialBytesLength(partialBytes));
