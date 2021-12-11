@@ -14,4 +14,4 @@ export const Decodings: string[] = [
   'Yy', 'Zz',
 ];
 
-export const ignore = '-';
+export const Ignore = '-';
