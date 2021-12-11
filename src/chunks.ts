@@ -118,7 +118,7 @@ export const toChunks = (uint8: Uint8Array): number[] => {
   return chunks;
 };
 
-const partialBytesLength = (
+const partialsLength = (
     partials: Partial[],
 ): number => {
   return partials.length ?
@@ -132,7 +132,7 @@ const partialBytesLength = (
 export const combinePartialBytes = (
     partials: Partial[],
 ): number => {
-  const length = partialBytesLength(partials);
+  const length = partialsLength(partials);
   if (length !== 8) {
     // eslint-disable-next-line max-len
     throw new Error(`Combined length of partial bytes must be 8 bits: was ${length})`);
@@ -170,7 +170,7 @@ export const fromChunks = (chunks: number[]): Uint8Array => {
       bits: copyBits(chunk, mask),
       length: (endByte - startByte) + 1,
     });
-    if (partialBytesLength(partialBytes) === 8) {
+    if (partialsLength(partialBytes) === 8) {
       bytes.push(combinePartialBytes(partialBytes));
       partialBytes = [] as Partial[];
     }
@@ -181,7 +181,7 @@ export const fromChunks = (chunks: number[]): Uint8Array => {
       // we need less than the full chunk
       consumeBits(chunk, startByte, endByte);
       startByte = endByte + 1;
-      endByte = getEndByte(startByte, partialBytesLength(partialBytes));
+      endByte = getEndByte(startByte, partialsLength(partialBytes));
     }
 
     if (endByte === 5) {
@@ -195,7 +195,7 @@ export const fromChunks = (chunks: number[]): Uint8Array => {
         // we *do* need the rest of the byte
         consumeBits(chunk, startByte, endByte);
         startByte = 1;
-        endByte = getEndByte(startByte, partialBytesLength(partialBytes));
+        endByte = getEndByte(startByte, partialsLength(partialBytes));
       } // otherwise the rest is just padding
       // TODO should we be checking that the rest of the chunk is zeros?
     }
