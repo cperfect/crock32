@@ -169,7 +169,12 @@ export const fromChunks = (chunks: number[]): Uint8Array => {
   let endByte = 5;
   let partialBytes = [] as PartialChunk[];
 
-  const mayfinishByte = () => {
+  const consumeBits= (chunk: number, startByte: number, endByte: number) => {
+    const mask = getCopyMask(startByte, endByte, 5);
+    partialBytes.push({
+      bits: byteToChunk(chunk, mask),
+      length: (endByte - startByte) + 1,
+    });
     if (partialBytesLength(partialBytes) === 8) {
       bytes.push(combinePartialBytes(partialBytes));
       partialBytes = [] as PartialChunk[];
@@ -179,45 +184,25 @@ export const fromChunks = (chunks: number[]): Uint8Array => {
   chunks.forEach((chunk, idx) => {
     if (startByte === 1 && endByte < 5) {
       // we need less than the full chunk
-      const mask = getCopyMask(startByte, endByte, 5);
-      partialBytes.push({
-        bits: byteToChunk(chunk, mask),
-        length: (endByte - startByte)+1,
-      });
-      mayfinishByte();
+      consumeBits(chunk, startByte, endByte);
       startByte = endByte + 1;
       endByte = getEndByte(startByte, partialBytesLength(partialBytes));
     } else if (startByte > 1 && endByte < 5) {
       // we need a inner segment of the chunk
-      const mask = getCopyMask(startByte, endByte, 5);
-      partialBytes.push({
-        bits: byteToChunk(chunk, mask),
-        length: (endByte - startByte)+1,
-      });
-      mayfinishByte();
-      startByte = endByte+1;
+      consumeBits(chunk, startByte, endByte);
+      startByte = endByte + 1;
       endByte = getEndByte(startByte, partialBytesLength(partialBytes));
     }
 
     if (startByte === 1 && endByte === 5) {
       // we need the entire chunk
-      const mask = getCopyMask(startByte, endByte, 5);
-      partialBytes.push({
-        bits: byteToChunk(chunk, mask),
-        length: (endByte - startByte)+1,
-      });
-      mayfinishByte();
+      consumeBits(chunk, startByte, endByte);
       startByte = 1;
       endByte = getEndByte(startByte, partialBytesLength(partialBytes));
     } else if (startByte > 1 && endByte === 5) {
       if (idx !== chunks.length - 1 || partialBytes.length) {
         // we need the rest of the chunk
-        const mask = getCopyMask(startByte, endByte, 5);
-        partialBytes.push({
-          bits: byteToChunk(chunk, mask),
-          length: (endByte - startByte)+1,
-        });
-        mayfinishByte();
+        consumeBits(chunk, startByte, endByte);
         startByte = 1;
         endByte = getEndByte(startByte, partialBytesLength(partialBytes));
       } // otherwise this is just padding
