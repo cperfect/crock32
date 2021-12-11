@@ -63,16 +63,14 @@ export const toChunks = (uint8: Uint8Array): number[] => {
   // from a starting position
   const getEndChunk = (
       start: number,
-      acrossByte?: boolean, // true if there will be byte boundary in between
+      length: number = 5,
   ): number => {
-    if (acrossByte) {
-      return start + 5 <= 8 ? start + 5 : (start + 5) % 8;
-    }
-    return start + 5 <= 8 ? start + 5 : 8;
+    return start + (length - 1) <= 8 ? start + (length - 1) : 8;
   };
 
   uint8.forEach((byte, idx) => {
-    if (endChunk < 5) { // we have a 'right' partial at the front
+    if (endChunk < 5) {
+      // we have a 'right' partial at the front
       const mask = getCopyMask(startChunk, endChunk, 8);
       if (!partialChunk) {
         // eslint-disable-next-line max-len
@@ -82,39 +80,41 @@ export const toChunks = (uint8: Uint8Array): number[] => {
         bits: copyBits(byte, mask),
         length: (endChunk - startChunk) + 1,
       });
+      partialChunk = null;
       chunks.push(chunk);
       startChunk = endChunk + 1;
-      endChunk = getEndChunk(endChunk);
+      endChunk = getEndChunk(startChunk);
     }
 
-    if (startChunk + 5 <= 8) { // we have entire chunk
+    if ((8 - startChunk) + 1 >= 5) {
+      // we have entire chunk
       const mask = getCopyMask(startChunk, endChunk, 8);
       chunks.push(copyBits(byte, mask));
-      startChunk = endChunk + 1;
-      endChunk = getEndChunk(endChunk);
+      startChunk = endChunk === 8 ? 1 : endChunk + 1;
+      endChunk = getEndChunk(startChunk);
     }
 
-    if (startChunk <= 8) { // we have a 'left' partial
+    if (endChunk === 8) {
+      // we have a 'left' partial
       const mask = getCopyMask(startChunk, endChunk, 8);
       partialChunk = {
         bits: copyBits(byte, mask),
         length: (endChunk - startChunk) + 1,
       };
-      // if we are on the last byte
-      if (idx == uint8.length - 1) {
-        // right pad any left over space in last chunk
-        const padding = {
-          bits: 0,
-          length: 5 - partialChunk.length,
-        };
-        const chunk = combinePartialChunks(partialChunk, padding);
-        chunks.push(chunk);
-      } else {
-        endChunk = getEndChunk(startChunk - 1, true);
-        startChunk = 1;
-      }
+      startChunk = 1;
+      endChunk = getEndChunk(startChunk, (5 - partialChunk.length));
     }
   });
+
+  if (partialChunk !== null) {
+    // if we have a partial chunk left then right pad with zeros
+    const padding = {
+      bits: 0,
+      length: 5 - partialChunk['length'], // use bracket notation to workround https://github.com/microsoft/TypeScript/issues/11498
+    };
+    const chunk = combinePartialChunks(partialChunk, padding);
+    chunks.push(chunk);
+  }
   return chunks;
 };
 

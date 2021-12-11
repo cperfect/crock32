@@ -27,6 +27,9 @@ describe('Encode String', () => {
   it('should encode all ascii printables', () => {
     expect(encodeString(AllAsciiPrintables)).to.equal(AllAsciiPrintablesCrock32);
   });
+  it('should encode big formatted text', () => {
+    expect(encodeString(BigFormattedText)).to.equal(BigFormattedTextCrock32);
+  });
 });
 
 describe('Decode String', () => {

@@ -219,6 +219,33 @@ describe('To Chunks', () => {
       0b01111, // no padding
     ]);
   });
+  it('more than 5 bytes ( covers all chunk - byte mapping cases )', () => {
+    const uint8 = Uint8Array.from([
+      0b10101010,
+      0b11111111,
+      0b10110100,
+      0b11110000,
+      0b00001111,
+      0b01010101,
+      0b11001100,
+    ]);
+    const chunks = toChunks(uint8);
+    // eslint-disable-next-line max-len
+    expect(chunks).to.deep.equal([
+      0b10101,
+      0b01011,
+      0b11111,
+      0b11011,
+      0b01001,
+      0b11100,
+      0b00000,
+      0b01111,
+      0b01010,
+      0b10111,
+      0b00110,
+      0b00000,
+    ]);
+  });
 });
 
 describe('Combine Partial Bytes', () => {
