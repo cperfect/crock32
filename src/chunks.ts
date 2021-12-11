@@ -189,21 +189,23 @@ export const fromChunks = (chunks: number[]): Uint8Array => {
       endByte = getEndByte(startByte, partialBytesLength(partialBytes));
     }
 
-    if (startByte === 1 && endByte === 5) {
-      // we need the entire chunk
-      consumeBits(chunk, startByte, endByte);
-      startByte = 1;
-      endByte = getEndByte(startByte, partialBytesLength(partialBytes));
-    } else if (startByte > 1 && endByte === 5) {
-      if (idx !== chunks.length - 1 || partialBytes.length) {
-        // we need the rest of the chunk
+    if (endByte === 5) {
+      // we (may) need the rest of the byte
+      if ((startByte === 1) || // if we need the entire chunk
+          (
+            idx !== chunks.length - 1 ||
+            partialBytes.length
+          )// or we are not on the last chunk with a partial byte
+      ) {
+        // we *do* need the rest of the byte
         consumeBits(chunk, startByte, endByte);
         startByte = 1;
         endByte = getEndByte(startByte, partialBytesLength(partialBytes));
-      } // otherwise this is just padding
+      } // otherwise the rest is just padding
       // TODO should we be checking that the rest of the chunk is zeros?
     }
   });
+
   if (partialBytes.length) {
     // if we have left over partials then combine them into a byte
     bytes.push(combinePartialBytes(partialBytes));
