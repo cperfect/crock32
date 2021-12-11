@@ -46,8 +46,8 @@ export const combinePartialChunks = (
   return (left.bits << right.length) + right.bits;
 };
 
-// extrack a chunk from a byte based on a mask
-export const byteToChunk = (val: number, mask: CopyMask): number => {
+// copy bits based on a mask
+export const copyBits = (val: number, mask: CopyMask): number => {
   const bits = val & mask.bits;
   return bits >> mask.leftShift;
 };
@@ -78,7 +78,7 @@ export const toChunks = (uint8: Uint8Array): number[] => {
         throw new Error(`Found right partial without left partial in byte ${idx}`);
       }
       const chunk = combinePartialChunks(partialChunk, {
-        bits: byteToChunk(byte, mask),
+        bits: copyBits(byte, mask),
         length: (endChunk - startChunk)+1,
       });
       chunks.push(chunk);
@@ -88,7 +88,7 @@ export const toChunks = (uint8: Uint8Array): number[] => {
 
     if (startChunk + 5 <= 8) { // we have entire chunk
       const mask = getCopyMask(startChunk, endChunk, 8);
-      chunks.push(byteToChunk(byte, mask));
+      chunks.push(copyBits(byte, mask));
       startChunk = endChunk + 1;
       endChunk = getEndChunk(endChunk);
     }
@@ -96,7 +96,7 @@ export const toChunks = (uint8: Uint8Array): number[] => {
     if (startChunk <= 8) { // we have a 'left' partial
       const mask = getCopyMask(startChunk, endChunk, 8);
       partialChunk = {
-        bits: byteToChunk(byte, mask),
+        bits: copyBits(byte, mask),
         length: (endChunk - startChunk)+1,
       };
       // if we are on the last byte
@@ -172,7 +172,7 @@ export const fromChunks = (chunks: number[]): Uint8Array => {
   const consumeBits= (chunk: number, startByte: number, endByte: number) => {
     const mask = getCopyMask(startByte, endByte, 5);
     partialBytes.push({
-      bits: byteToChunk(chunk, mask),
+      bits: copyBits(chunk, mask),
       length: (endByte - startByte) + 1,
     });
     if (partialBytesLength(partialBytes) === 8) {

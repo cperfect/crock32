@@ -1,6 +1,6 @@
 import {expect} from 'chai';
 import {
-  byteToChunk,
+  copyBits,
   getCopyMask,
   toChunks,
   combinePartialChunks,
@@ -57,45 +57,45 @@ describe('Get Copy Mask', () => {
   });
 });
 
-describe('Byte to Chunk', () => {
+describe('Copy Bits', () => {
   it('0b11100000, 1,3 => 0b111', () => {
-    const b = byteToChunk(0b11100000, getCopyMask(1, 3, 8));
+    const b = copyBits(0b11100000, getCopyMask(1, 3, 8));
     expect(b).to.equal(0b111);
   });
   it('0b00111000, 2,6 => 0b1110', () => {
-    const b = byteToChunk(0b00111000, getCopyMask(2, 6, 8));
+    const b = copyBits(0b00111000, getCopyMask(2, 6, 8));
     expect(b).to.equal(0b01110);
   });
   it('0b00001111, 1,3 => 0b000', () => {
-    const b = byteToChunk(0b00001111, getCopyMask(1, 3, 8));
+    const b = copyBits(0b00001111, getCopyMask(1, 3, 8));
     expect(b).to.equal(0b000);
   });
   it('0b00000000, 1,3 => 0b000', () => {
-    const b = byteToChunk(0b00000000, getCopyMask(1, 3, 8));
+    const b = copyBits(0b00000000, getCopyMask(1, 3, 8));
     expect(b).to.equal(0b000);
   });
   it('0b00000110, 5,8 => 0b110', () => {
-    const b = byteToChunk(0b00000110, getCopyMask(5, 8, 8));
+    const b = copyBits(0b00000110, getCopyMask(5, 8, 8));
     expect(b).to.equal(0b110);
   });
   it('0b01110110, 1,3 => 0b01100', () => {
-    const b = byteToChunk(0b01110110, getCopyMask(1, 3, 8));
+    const b = copyBits(0b01110110, getCopyMask(1, 3, 8));
     expect(b).to.equal(0b11);
   });
   it('0b11111111, 3, 8,7 => 0b11111', () => {
-    const b = byteToChunk(0b11111111, getCopyMask(3, 7, 8));
+    const b = copyBits(0b11111111, getCopyMask(3, 7, 8));
     expect(b, `got ${b.toString(2)}`).to.equal(0b11111);
   });
   it('0b11111111, 1, 3,5 => 0b111', () => {
-    const b = byteToChunk(0b11111111, getCopyMask(1, 3, 5));
+    const b = copyBits(0b11111111, getCopyMask(1, 3, 5));
     expect(b, `got ${b.toString(2)}`).to.equal(0b111);
   });
   it('0b11111111, 3, 5,5 => 0b111', () => {
-    const b = byteToChunk(0b11111111, getCopyMask(3, 5, 5));
+    const b = copyBits(0b11111111, getCopyMask(3, 5, 5));
     expect(b, `got ${b.toString(2)}`).to.equal(0b111);
   });
   it('0b11111111, 1, 5,5 => 0b11111', () => {
-    const b = byteToChunk(0b11111111, getCopyMask(1, 5, 5));
+    const b = copyBits(0b11111111, getCopyMask(1, 5, 5));
     expect(b, `got ${b.toString(2)}`).to.equal(0b11111);
   });
 });
@@ -222,7 +222,7 @@ describe('To Chunks', () => {
 });
 
 describe('Combine Partial Bytes', () => {
-  it('0b00111, 0b00011 < 0 => 0b11111', () => {
+  it('should combine partials of 8 bits correctly', () => {
     const c = combinePartialBytes(
         [
           {
@@ -241,7 +241,7 @@ describe('Combine Partial Bytes', () => {
     );
     expect(c, `got ${c.toString(2)}`).to.equal(0b11111011);
   });
-  it('0b00111, 0b00011 < 0 => 0b11111', () => {
+  it('too few bits in partials should be padded', () => {
     const c = combinePartialBytes(
         [
           {
@@ -256,7 +256,7 @@ describe('Combine Partial Bytes', () => {
     );
     expect(c, `got ${c.toString(2)}`).to.equal(0b11111000);
   });
-  it('0b00111, 0b00011 < 0 => 0b11111', () => {
+  it('too many bits in partials should throw an error', () => {
     expect(function() {
       combinePartialBytes(
           [
