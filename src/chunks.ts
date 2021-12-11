@@ -52,24 +52,25 @@ export const copyBits = (val: number, mask: CopyMask): number => {
   return bits >> mask.leftShift;
 };
 
-// get the next chunk end boundary
-// from a starting position
-const getEndChunk = (
-    start: number,
-    acrossByte?: boolean, // true if there will be byte boundary in between
-): number => {
-  if (acrossByte) {
-    return start + 5 <= 8 ? start + 5 : (start + 5) % 8;
-  }
-  return start + 5 <= 8 ? start + 5 : 8;
-};
-
 // copy an array of bytes into an array of 5 bit chunks (2^5 = 32)
 export const toChunks = (uint8: Uint8Array): number[] => {
   const chunks = [] as number[];
   let startChunk = 1; // 1 index on a byte
   let endChunk = 5;
   let partialChunk: PartialChunk | null = null;
+
+  // get the next chunk end boundary
+  // from a starting position
+  const getEndChunk = (
+      start: number,
+      acrossByte?: boolean, // true if there will be byte boundary in between
+  ): number => {
+    if (acrossByte) {
+      return start + 5 <= 8 ? start + 5 : (start + 5) % 8;
+    }
+    return start + 5 <= 8 ? start + 5 : 8;
+  };
+
   uint8.forEach((byte, idx) => {
     if (endChunk < 5) { // we have a 'right' partial at the front
       const mask = getCopyMask(startChunk, endChunk, 8);
@@ -79,7 +80,7 @@ export const toChunks = (uint8: Uint8Array): number[] => {
       }
       const chunk = combinePartialChunks(partialChunk, {
         bits: copyBits(byte, mask),
-        length: (endChunk - startChunk)+1,
+        length: (endChunk - startChunk) + 1,
       });
       chunks.push(chunk);
       startChunk = endChunk + 1;
@@ -97,7 +98,7 @@ export const toChunks = (uint8: Uint8Array): number[] => {
       const mask = getCopyMask(startChunk, endChunk, 8);
       partialChunk = {
         bits: copyBits(byte, mask),
-        length: (endChunk - startChunk)+1,
+        length: (endChunk - startChunk) + 1,
       };
       // if we are on the last byte
       if (idx == uint8.length - 1) {
@@ -109,7 +110,7 @@ export const toChunks = (uint8: Uint8Array): number[] => {
         const chunk = combinePartialChunks(partialChunk, padding);
         chunks.push(chunk);
       } else {
-        endChunk = getEndChunk(startChunk-1, true);
+        endChunk = getEndChunk(startChunk - 1, true);
         startChunk = 1;
       }
     }
@@ -150,18 +151,6 @@ export const combinePartialBytes = (
   }).bits;
 };
 
-const getEndByte = (
-    start: number,
-    partialBits: number,
-): number => {
-  const toEndOfByte = 8 - partialBits;
-  if (toEndOfByte >= 5) {
-    return 5;
-  } else {
-    return start + (toEndOfByte - 1);
-  }
-};
-
 // copy an array of 5 bit chunks into an array of bytes
 export const fromChunks = (chunks: number[]): Uint8Array => {
   const bytes = [] as number[];
@@ -169,7 +158,19 @@ export const fromChunks = (chunks: number[]): Uint8Array => {
   let endByte = 5;
   let partialBytes = [] as PartialChunk[];
 
-  const consumeBits= (chunk: number, startByte: number, endByte: number) => {
+  const getEndByte = (
+      start: number,
+      partialBits: number,
+  ): number => {
+    const toEndOfByte = 8 - partialBits;
+    if (toEndOfByte >= 5) {
+      return 5;
+    } else {
+      return start + (toEndOfByte - 1);
+    }
+  };
+
+  const consumeBits = (chunk: number, startByte: number, endByte: number) => {
     const mask = getCopyMask(startByte, endByte, 5);
     partialBytes.push({
       bits: copyBits(chunk, mask),
@@ -192,10 +193,10 @@ export const fromChunks = (chunks: number[]): Uint8Array => {
     if (endByte === 5) {
       // we (may) need the rest of the byte
       if ((startByte === 1) || // if we need the entire chunk
-          (
-            idx !== chunks.length - 1 ||
-            partialBytes.length
-          )// or we are not on the last chunk with a partial byte
+        (
+          idx !== chunks.length - 1 ||
+          partialBytes.length
+        )// or we are not on the last chunk with a partial byte
       ) {
         // we *do* need the rest of the byte
         consumeBits(chunk, startByte, endByte);
