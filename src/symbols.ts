@@ -6,12 +6,32 @@ export const Encodings: string[] = [
   'Y', 'Z',
 ];
 
+export const ChecksumEncodings: string[] = [
+  '*', '~', '$', '=', 'U',
+];
+
+// each index represents a value from 0-31 (inc.)
+export const EncodingsWithChecksum: string[] = [
+  ...Encodings,
+  ...ChecksumEncodings,
+];
+
 // each index represents a value from 0-31 (inc.)
 export const Decodings: string[] = [
   '0Oo', '1IiLl', '2', '3', '4', '5', '6', '7', '8', '9',
   'Aa', 'Bb', 'Cc', 'Dd', 'Ee', 'Ff', 'Gg', 'Hh', 'Jj', 'Kk',
   'Mm', 'Nn', 'Pp', 'Qq', 'Rr', 'Ss', 'Tt', 'Vv', 'Ww', 'Xx',
   'Yy', 'Zz',
+];
+
+export const ChecksumDecodings: string[] = [
+  '*', '~', '$', '=', 'Uu',
+];
+
+// each index represents a value from 0-31 (inc.)
+export const DecodingsWithChecksum: string[] = [
+  ...Decodings,
+  ...ChecksumDecodings,
 ];
 
 export const Ignore = '-';
