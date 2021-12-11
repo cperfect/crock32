@@ -241,20 +241,21 @@ describe('Combine Partial Bytes', () => {
     );
     expect(c, `got ${c.toString(2)}`).to.equal(0b11111011);
   });
-  it('too few bits in partials should be padded', () => {
-    const c = combinePartialBytes(
-        [
-          {
-            bits: 0b00111,
-            length: 3,
-          },
-          {
-            bits: 0b00011,
-            length: 2,
-          },
-        ],
-    );
-    expect(c, `got ${c.toString(2)}`).to.equal(0b11111000);
+  it('too few bits in partials throws an error', () => {
+    expect(function() {
+      combinePartialBytes(
+          [
+            {
+              bits: 0b00111,
+              length: 3,
+            },
+            {
+              bits: 0b00011,
+              length: 2,
+            },
+          ],
+      );
+    }).to.throw(Error);
   });
   it('too many bits in partials should throw an error', () => {
     expect(function() {

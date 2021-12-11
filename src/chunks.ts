@@ -133,15 +133,9 @@ export const combinePartialBytes = (
     partials: PartialChunk[],
 ): number => {
   const length = partialBytesLength(partials);
-  if (length > 8) {
+  if (length !== 8) {
     // eslint-disable-next-line max-len
-    throw new Error(`Combined length of partial bytes must be 8 bits or less: was ${length})`);
-  } else if (length < 8) {
-    // pad with 0
-    partials = [...partials, {
-      bits: 0,
-      length: 8 - length,
-    }];
+    throw new Error(`Combined length of partial bytes must be 8 bits: was ${length})`);
   }
   return partials.reduce((left, right) => {
     return {
