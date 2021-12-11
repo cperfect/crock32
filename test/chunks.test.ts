@@ -295,13 +295,22 @@ describe('From Chunks', () => {
       0b10110100,
     ]));
   });
-  it('single chunk', () => {
+  it('single chunk should throw error (need 2 chunks to map one byte)', () => {
     const chunks = [
       0b10101,
     ];
+    expect(function() {
+      fromChunks(chunks);
+    }).to.throw(Error);
+  });
+  it('single byte', () => {
+    const chunks = [
+      0b10101,
+      0b01000,
+    ];
     const uint8 = fromChunks(chunks);
     expect(uint8).to.deep.equal(Uint8Array.from([
-      0b10101000,
+      0b10101010,
     ]));
   });
   it('multiple chunks without padding', () => {

@@ -208,8 +208,9 @@ export const fromChunks = (chunks: number[]): Uint8Array => {
   });
 
   if (partialBytes.length) {
-    // if we have left over partials then combine them into a byte
-    bytes.push(combinePartialBytes(partialBytes));
+    // if we have left over partials then our chunk data is currupt
+    throw new Error('Found an incomplete byte in chunk data');
   }
+
   return Uint8Array.from(bytes);
 };
