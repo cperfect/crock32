@@ -19,8 +19,15 @@
   "scripts": {
     "tests": "mocha --require ts-node/register test/**/*.ts",
     "lint": "eslint src --ext .ts",
-    "lint:fix": "npm run lint -- --fix"
+    "lint:fix": "npm run lint -- --fix",
+    "build": "tsc",
+    "prepare" : "npm run build",
+    "prepublishOnly" : "npm run tests && npm run lint",
+    "preversion" : "npm run lint"
   },
   "author": "Chris Perfect (cperfect)",
-  "license": "MIT"
+  "license": "MIT",
+  "files": [
+    "dist/**/*"
+  ]
 }
