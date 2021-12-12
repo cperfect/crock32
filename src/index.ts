@@ -1,7 +1,6 @@
-import {addChecksum, validateChecksum} from './checksum';
+import {calculateChecksum, validateChecksum} from './checksum';
 import {fromChunks, toChunks} from './chunks';
 import {
-  ChecksumDecodings,
   Decodings,
   DecodingsWithChecksum,
   Encodings,
@@ -16,7 +15,10 @@ export const encode = (
   const chunks = toChunks(uint8);
 
   if (checked) {
-    const checkedChunks = addChecksum(chunks);
+    const checkedChunks = [
+      ...chunks,
+      calculateChecksum(uint8),
+    ];
     return checkedChunks.map((c) => EncodingsWithChecksum[c])
         .reduce((prev, curr) => prev.concat(curr));
   }
@@ -33,11 +35,12 @@ export const encodeString = (
   return encode(enc.encode(str), checked);
 };
 
-export const decode = (c32: string): Uint8Array => {
+export const decode = (
+    c32: string,
+    checked: boolean = false,
+): Uint8Array => {
   // user can add hyphens anywhere and they should be ignored
   c32 = c32.replace(Ignore, '');
-  const checked = ChecksumDecodings
-      .find((cd) => cd.includes(c32.charAt(c32.length - 1)));
   if (checked) {
     const chunks = c32.split('').map((c) => {
       const symbols = DecodingsWithChecksum.find((d) => d.includes(c));
@@ -63,7 +66,10 @@ export const decode = (c32: string): Uint8Array => {
   return fromChunks(chunks);
 };
 
-export const decodeString = (c32: string): string => {
+export const decodeString = (
+    c32: string,
+    checked: boolean = false,
+): string => {
   const dec = new TextDecoder();
-  return dec.decode(decode(c32));
+  return dec.decode(decode(c32, checked));
 };
