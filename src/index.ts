@@ -53,7 +53,7 @@ export const decode = (
     const data = chunks.slice(0, chunks.length - 1);
     const uint8 = fromChunks(data);
     if (!validateChecksum(uint8, check)) {
-      throw new Error(`Checksum validation failed`);
+      throw new Error('Checksum validation failed');
     }
     return uint8;
   }
