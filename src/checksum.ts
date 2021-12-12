@@ -12,15 +12,16 @@ export const addChecksum = (chunks: number[]): number[] => {
   ];
 };
 
-export const validateChecksum = (chunks: number[]): boolean => {
+export const validateChecksum = (
+    chunks: number[],
+    checksum: number,
+): boolean => {
   if (!chunks.length) {
     return true;
   }
-  const check = chunks[chunks.length - 1];
-  const data = chunks.slice(0, (chunks.length - 2));
-  const sum: bigint = data
+  const sum: bigint = chunks
       .map((c) => BigInt(c))
       .reduce((prev, curr) => prev + curr);
-  const checksum = Number(sum % 37n);
+  const check = Number(sum % 37n);
   return check === checksum;
 };
