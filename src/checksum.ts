@@ -1,9 +1,5 @@
-export const calculateChecksum = (uint8: Uint8Array): number => {
-  if (!uint8.length) {
-    return 0;
-  }
-
-  // join the bytes into one binary number
+// join the bytes into one binary number
+const toBigInt = (uint8: Uint8Array): bigint => {
   // represented as a string
   // left padding bytes to 8 digits if necessary
   // Note: can't use map/reduce here
@@ -13,20 +9,26 @@ export const calculateChecksum = (uint8: Uint8Array): number => {
   uint8.forEach((b) => {
     binStr = binStr.concat(b.toString(2).padStart(8, '0'));
   });
+  return BigInt(binStr);
+};
+
+export const calculateChecksum = (uint8: Uint8Array): number => {
+  if (!uint8.length) {
+    return 0;
+  }
+  const big = toBigInt(uint8);
   // calculate modulo 37
-  return Number(BigInt(binStr) % 37n);
+  return Number(big % 37n);
 };
 
 export const validateChecksum = (
-    chunks: number[],
+    uint8: Uint8Array,
     checksum: number,
 ): boolean => {
-  if (!chunks.length) {
+  if (!uint8.length) {
     return true;
   }
-  const sum: bigint = chunks
-      .map((c) => BigInt(c))
-      .reduce((prev, curr) => prev + curr);
-  const check = Number(sum % 37n);
+  const big = toBigInt(uint8);
+  const check = Number(big % 37n);
   return check === checksum;
 };

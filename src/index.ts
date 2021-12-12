@@ -47,14 +47,15 @@ export const decode = (
       if (!symbols) {
         throw new Error(`${c} is not a valid crock32 (inc. checksum) symbol`);
       }
-      return Decodings.indexOf(symbols);
+      return DecodingsWithChecksum.indexOf(symbols);
     });
     const check = chunks[chunks.length - 1];
-    const data = chunks.slice(0, chunks.length - 2);
-    if (!validateChecksum(data, check)) {
+    const data = chunks.slice(0, chunks.length - 1);
+    const uint8 = fromChunks(data);
+    if (!validateChecksum(uint8, check)) {
       throw new Error(`Checksum validation failed`);
     }
-    return fromChunks(data);
+    return uint8;
   }
   const chunks = c32.split('').map((c) => {
     const symbols = Decodings.find((d) => d.includes(c));
