@@ -7,6 +7,15 @@ import {
   encodeString,
 } from '../src/index';
 
+const replaceCharAt = (
+    str: string,
+    idx: number,
+    char: string,
+) => {
+  if (idx > str.length-1) return str;
+  return str.substring(0, idx) + char + str.substring(idx + 1);
+};
+
 // https://www.dcode.fr/crockford-base-32-encoding
 
 const BinaryData = Uint8Array.from([
@@ -81,6 +90,12 @@ describe('Decode with checksum', () => {
   it('should decode binary', () => {
     expect(decode(BinaryDataCrock32Checked, true)).to.deep.equal(BinaryData);
   });
+  it('should throw an error if checksum validation fails', () => {
+    const corrupt = replaceCharAt(BinaryDataCrock32Checked, 3, 'A');
+    expect(function() {
+      decode(corrupt, true);
+    }).to.throw('Checksum validation failed');
+  });
 });
 
 describe('Decode String', () => {
@@ -98,5 +113,11 @@ describe('Decode String with checksum', () => {
   });
   it('should decode big formatted text', () => {
     expect(decodeString(BigFormattedTextCrock32Checked, true)).to.equal(BigFormattedText);
+  });
+  it('should throw an error if checksum validation fails', () => {
+    const corrupt = replaceCharAt(AllAsciiPrintablesCrock32Checked, 3, 'A');
+    expect(function() {
+      decode(corrupt, true);
+    }).to.throw('Checksum validation failed');
   });
 });
