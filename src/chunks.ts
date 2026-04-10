@@ -40,7 +40,6 @@ export const combinePartialChunks = (
     right: Partial,
 ): number => {
   if (left.length + right.length != 5) {
-    // eslint-disable-next-line max-len
     throw new Error(`Combined length of partial chunks must be 5: (${left.length} + ${right.length} != 5)`);
   }
   return (left.bits << right.length) + right.bits;
@@ -73,7 +72,6 @@ export const toChunks = (uint8: Uint8Array): number[] => {
       // we have a 'right' partial at the front
       const mask = getCopyMask(startChunk, endChunk, 8);
       if (!partialChunk) {
-        // eslint-disable-next-line max-len
         throw new Error(`Found right partial without left partial in byte ${idx}`);
       }
       const chunk = combinePartialChunks(partialChunk, {
@@ -110,7 +108,8 @@ export const toChunks = (uint8: Uint8Array): number[] => {
     // if we have a partial chunk left then right pad with zeros
     const padding = {
       bits: 0,
-      length: 5 - partialChunk['length'], // use bracket notation to workround https://github.com/microsoft/TypeScript/issues/11498
+      // use bracket notation to workaround https://github.com/microsoft/TypeScript/issues/11498
+      length: 5 - partialChunk['length'],
     };
     const chunk = combinePartialChunks(partialChunk, padding);
     chunks.push(chunk);
@@ -134,7 +133,6 @@ export const combinePartialBytes = (
 ): number => {
   const length = partialsLength(partials);
   if (length !== 8) {
-    // eslint-disable-next-line max-len
     throw new Error(`Combined length of partial bytes must be 8 bits: was ${length})`);
   }
   return partials.reduce((left, right) => {
