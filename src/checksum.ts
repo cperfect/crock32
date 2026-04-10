@@ -6,8 +6,8 @@ const toBigInt = (uint8: Uint8Array): bigint => {
   // as uint8 is a TypedArray and
   // TypedArray.map returns a TypedArray
   let binStr = '0b'; // start with binary literal indicator
-  uint8.forEach((b) => {
-    binStr = binStr.concat(b.toString(2).padStart(8, '0'));
+  uint8.forEach((byte) => {
+    binStr = binStr.concat(byte.toString(2).padStart(8, '0'));
   });
   return BigInt(binStr);
 };
@@ -22,8 +22,8 @@ export const calculateChecksum = (uint8: Uint8Array): number => {
 };
 
 export const validateChecksum = (
-    uint8: Uint8Array,
-    checksum: number,
+  uint8: Uint8Array,
+  checksum: number,
 ): boolean => {
   if (!uint8.length) {
     return true;

@@ -9,8 +9,8 @@ import {
 } from './symbols';
 
 export const encode = (
-    uint8: Uint8Array,
-    checked: boolean = false,
+  uint8: Uint8Array,
+  checked: boolean = false,
 ): string => {
   const chunks = toChunks(uint8);
 
@@ -19,33 +19,33 @@ export const encode = (
       ...chunks,
       calculateChecksum(uint8),
     ];
-    return checkedChunks.map((c) => EncodingsWithChecksum[c])
-        .reduce((prev, curr) => prev.concat(curr));
+    return checkedChunks.map((chunk) => EncodingsWithChecksum[chunk])
+      .reduce((prev, curr) => prev.concat(curr));
   }
 
-  return chunks.map((c) => Encodings[c])
-      .reduce((prev, curr) => prev.concat(curr));
+  return chunks.map((chunk) => Encodings[chunk])
+    .reduce((prev, curr) => prev.concat(curr));
 };
 
 export const encodeString = (
-    str: string,
-    checked: boolean = false,
+  str: string,
+  checked: boolean = false,
 ): string => {
   const enc = new TextEncoder();
   return encode(enc.encode(str), checked);
 };
 
 export const decode = (
-    c32: string,
-    checked: boolean = false,
+  c32: string,
+  checked: boolean = false,
 ): Uint8Array => {
   // user can add hyphens anywhere and they should be ignored
   c32 = c32.replace(Ignore, '');
   if (checked) {
-    const chunks = c32.split('').map((c) => {
-      const symbols = DecodingsWithChecksum.find((d) => d.includes(c));
+    const chunks = c32.split('').map((char) => {
+      const symbols = DecodingsWithChecksum.find((decoding) => decoding.includes(char));
       if (!symbols) {
-        throw new Error(`${c} is not a valid crock32 (inc. checksum) symbol`);
+        throw new Error(`${char} is not a valid crock32 (inc. checksum) symbol`);
       }
       return DecodingsWithChecksum.indexOf(symbols);
     });
@@ -57,10 +57,10 @@ export const decode = (
     }
     return uint8;
   }
-  const chunks = c32.split('').map((c) => {
-    const symbols = Decodings.find((d) => d.includes(c));
+  const chunks = c32.split('').map((char) => {
+    const symbols = Decodings.find((decoding) => decoding.includes(char));
     if (!symbols) {
-      throw new Error(`${c} is not a valid crock32 symbol`);
+      throw new Error(`${char} is not a valid crock32 symbol`);
     }
     return Decodings.indexOf(symbols);
   });
@@ -68,8 +68,8 @@ export const decode = (
 };
 
 export const decodeString = (
-    c32: string,
-    checked: boolean = false,
+  c32: string,
+  checked: boolean = false,
 ): string => {
   const dec = new TextDecoder();
   return dec.decode(decode(c32, checked));

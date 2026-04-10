@@ -9,7 +9,7 @@ const generateId = (length: number): string => {
   }
   if (Number.isInteger(length * 8 / 5)) {
     return encode(randomBytes(length));
-  } 
+  }
   return encode(randomBytes(length+1).slice(length - 1)); // 5 bytes will generate exactly 8 characters
 };
 

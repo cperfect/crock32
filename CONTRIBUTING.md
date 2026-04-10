@@ -4,7 +4,7 @@ We are open to, and grateful for, any contributions made by the community. By co
 
 ## Code Style
 
-Please follow the [node style guide](https://github.com/felixge/node-style-guide).
+Please follow the [node style guide](https://github.com/felixge/node-style-guide), with the exception that the maximum line length is 120 characters rather than 80.
 
 ## Commit Messages
 

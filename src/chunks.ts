@@ -5,7 +5,7 @@ export type CopyMask = {
 }
 
 export const getCopyMask = (
-    start: number, end: number, bitLength: number,
+  start: number, end: number, bitLength: number,
 ): CopyMask => {
   if (start < 1 || start > bitLength || end < start || end > bitLength) {
     throw new Error(`Invalid start & end : ${start} & ${end}`);
@@ -36,8 +36,8 @@ export type Partial = {
 
 // combine two partial chunks into a complete chunk
 export const combinePartialChunks = (
-    left: Partial,
-    right: Partial,
+  left: Partial,
+  right: Partial,
 ): number => {
   if (left.length + right.length != 5) {
     throw new Error(`Combined length of partial chunks must be 5: (${left.length} + ${right.length} != 5)`);
@@ -61,8 +61,8 @@ export const toChunks = (uint8: Uint8Array): number[] => {
   // get the next chunk end boundary
   // from a starting position
   const getEndChunk = (
-      start: number,
-      length: number = 5,
+    start: number,
+    length: number = 5,
   ): number => {
     return start + (length - 1) <= 8 ? start + (length - 1) : 8;
   };
@@ -118,18 +118,18 @@ export const toChunks = (uint8: Uint8Array): number[] => {
 };
 
 const partialsLength = (
-    partials: Partial[],
+  partials: Partial[],
 ): number => {
   return partials.length ?
     partials
-        .map((p) => p.length)
-        .reduce((prev, curr) => prev + curr) :
+      .map((partial) => partial.length)
+      .reduce((prev, curr) => prev + curr) :
     0;
 };
 
 // combine two or three partial bytes into a complete byte
 export const combinePartialBytes = (
-    partials: Partial[],
+  partials: Partial[],
 ): number => {
   const length = partialsLength(partials);
   if (length !== 8) {
@@ -151,8 +151,8 @@ export const fromChunks = (chunks: number[]): Uint8Array => {
   let partialBytes = [] as Partial[];
 
   const getEndByte = (
-      start: number,
-      partialBits: number,
+    start: number,
+    partialBits: number,
   ): number => {
     const toEndOfByte = 8 - partialBits;
     if (toEndOfByte >= 5) {

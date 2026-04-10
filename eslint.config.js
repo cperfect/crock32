@@ -7,6 +7,11 @@ module.exports = tseslint.config(
   {
     rules: {
       'max-len': ['error', {code: 120}],
+      'indent': ['error', 2],
+      'linebreak-style': ['error', 'unix'],
+      'no-trailing-spaces': 'error',
+      'id-length': ['error', {min: 2, exceptions: ['i', 'j', 'k', '_']}],
+      'max-nested-callbacks': ['error', {max: 3}],
     },
   },
 );
