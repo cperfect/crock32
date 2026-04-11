@@ -6,6 +6,7 @@ module.exports = tseslint.config(
   tseslint.configs.recommended,
   {
     rules: {
+      'eqeqeq': 'error',
       'max-len': ['error', {code: 120}],
       'indent': ['error', 2],
       'linebreak-style': ['error', 'unix'],

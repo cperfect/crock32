@@ -1,24 +1,19 @@
-// join the bytes into one binary number
-const toBigInt = (uint8: Uint8Array): bigint => {
-  // represented as a string
-  // left padding bytes to 8 digits if necessary
-  // Note: can't use map/reduce here
-  // as uint8 is a TypedArray and
-  // TypedArray.map returns a TypedArray
-  let binStr = '0b'; // start with binary literal indicator
-  uint8.forEach((byte) => {
-    binStr = binStr.concat(byte.toString(2).padStart(8, '0'));
-  });
-  return BigInt(binStr);
-};
+// 37 is prime and larger than the 32 data symbols + 5 checksum symbols,
+// making it the modulus chosen by Crockford to produce unique check values.
+const CHECKSUM_MODULUS = 37n;
+
+// Join the bytes into one BigInt for modulo arithmetic.
+// BigInt is required as the data can be arbitrarily large.
+// We shift and OR each byte in directly to avoid an intermediate string.
+const toBigInt = (uint8: Uint8Array): bigint =>
+  uint8.reduce((acc, byte) => (acc << 8n) | BigInt(byte), 0n);
 
 export const calculateChecksum = (uint8: Uint8Array): number => {
   if (!uint8.length) {
     return 0;
   }
   const big = toBigInt(uint8);
-  // calculate modulo 37
-  return Number(big % 37n);
+  return Number(big % CHECKSUM_MODULUS);
 };
 
 export const validateChecksum = (
@@ -28,7 +23,5 @@ export const validateChecksum = (
   if (!uint8.length) {
     return true;
   }
-  const big = toBigInt(uint8);
-  const check = Number(big % 37n);
-  return check === checksum;
+  return calculateChecksum(uint8) === checksum;
 };

@@ -1,3 +1,8 @@
+// Bit positions throughout this file are 1-indexed from the most significant bit
+// (position 1 = MSB, position N = LSB). This matches the left-to-right visual
+// representation of binary numbers and makes the mask construction loop in
+// getCopyMask read naturally as a scan from left to right across the bits.
+
 // masks for bitwise copying
 export type CopyMask = {
   bits: number;
@@ -39,7 +44,7 @@ export const combinePartialChunks = (
   left: Partial,
   right: Partial,
 ): number => {
-  if (left.length + right.length != 5) {
+  if (left.length + right.length !== 5) {
     throw new Error(`Combined length of partial chunks must be 5: (${left.length} + ${right.length} != 5)`);
   }
   return (left.bits << right.length) + right.bits;
@@ -51,21 +56,16 @@ export const copyBits = (val: number, mask: CopyMask): number => {
   return bits >> mask.leftShift;
 };
 
+// get the next chunk end boundary from a starting position within a byte
+const getEndChunk = (start: number, length: number = 5): number =>
+  start + (length - 1) <= 8 ? start + (length - 1) : 8;
+
 // copy an array of bytes into an array of 5 bit chunks (2^5 = 32)
 export const toChunks = (uint8: Uint8Array): number[] => {
   const chunks = [] as number[];
   let startChunk = 1; // 1 index on a byte
   let endChunk = 5;
   let partialChunk: Partial | null = null;
-
-  // get the next chunk end boundary
-  // from a starting position
-  const getEndChunk = (
-    start: number,
-    length: number = 5,
-  ): number => {
-    return start + (length - 1) <= 8 ? start + (length - 1) : 8;
-  };
 
   uint8.forEach((byte, idx) => {
     if (endChunk < 5) {
@@ -143,24 +143,18 @@ export const combinePartialBytes = (
   }).bits;
 };
 
+// get the next byte end boundary from a starting position within a chunk
+const getEndByte = (start: number, partialBits: number): number => {
+  const toEndOfByte = 8 - partialBits;
+  return toEndOfByte >= 5 ? 5 : start + (toEndOfByte - 1);
+};
+
 // copy an array of 5 bit chunks into an array of bytes
 export const fromChunks = (chunks: number[]): Uint8Array => {
   const bytes = [] as number[];
   let startByte = 1; // 1 index on a chunk
   let endByte = 5;
   let partialBytes = [] as Partial[];
-
-  const getEndByte = (
-    start: number,
-    partialBits: number,
-  ): number => {
-    const toEndOfByte = 8 - partialBits;
-    if (toEndOfByte >= 5) {
-      return 5;
-    } else {
-      return start + (toEndOfByte - 1);
-    }
-  };
 
   const consumeBits = (chunk: number, startByte: number, endByte: number) => {
     const mask = getCopyMask(startByte, endByte, 5);
@@ -194,8 +188,13 @@ export const fromChunks = (chunks: number[]): Uint8Array => {
         consumeBits(chunk, startByte, endByte);
         startByte = 1;
         endByte = getEndByte(startByte, partialsLength(partialBytes));
-      } // otherwise the rest is just padding
-      // TODO should we be checking that the rest of the chunk is zeros?
+      } else {
+        // the rest is padding — validate it is zeros
+        const paddingMask = getCopyMask(startByte, 5, 5);
+        if (copyBits(chunk, paddingMask) !== 0) {
+          throw new Error('Non-zero padding bits in encoded data');
+        }
+      }
     }
   });
 

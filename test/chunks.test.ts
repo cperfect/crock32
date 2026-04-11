@@ -55,6 +55,18 @@ describe('Get Copy Mask', () => {
     expect(m).to
         .deep.equal({bits: Number.parseInt('01110', 2), leftShift: 1});
   });
+  it('should throw when start < 1', () => {
+    expect(() => getCopyMask(0, 3, 8)).to.throw(Error);
+  });
+  it('should throw when start > bitLength', () => {
+    expect(() => getCopyMask(9, 9, 8)).to.throw(Error);
+  });
+  it('should throw when end < start', () => {
+    expect(() => getCopyMask(4, 2, 8)).to.throw(Error);
+  });
+  it('should throw when end > bitLength', () => {
+    expect(() => getCopyMask(1, 9, 8)).to.throw(Error);
+  });
 });
 
 describe('Copy Bits', () => {
