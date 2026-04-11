@@ -31,8 +31,8 @@ Please update the tests to reflect your code changes. Pull requests will not be 
 
 ## Developing
 
-- `npm run test` runs the jasmine and mocha tests
-- `npm run build` runs rollup and bundles the source
+- `npm run tests` runs the tests
+- `npm run build` compiles TypeScript to `dist/`
 
 ## Running Examples
 

@@ -1,6 +1,6 @@
 Typescript Crock32
 ==================
-A typescript library implementing [Dougls Crockfords's Crock32 Encoding Alogrithm](https://www.crockford.com/base32.html) encoding algorithm.
+A TypeScript library implementing [Douglas Crockford's Base32 encoding algorithm](https://www.crockford.com/base32.html).
 
 > Base 32 is a textual 32-symbol notation for expressing numbers in a form that can be conveniently and accurately transmitted between humans and computer systems. It can be used for out of band communication of public keys.
 
@@ -9,7 +9,7 @@ This package can be used to encode data of arbitrary length. This is a bit of ov
 **NOTE: crock32 is not an encryption scheme and sensitive data should be encrypted appropriately before being crock32 encoded!**
 
 ## Features
-* Encode and Decode binary data (Uint8Array) and strings of any length (subject to resource limites).
+* Encode and Decode binary data (Uint8Array) and strings of any length (subject to resource limits).
 * Checksum - though this does add significant overhead for large data sets.
 * No external dependencies
 
@@ -48,7 +48,7 @@ const id = encode(randomBytes(5)); // e.g. 'X7KQ2M4P'
 Hyphens are ignored during decoding, so IDs can be formatted for readability:
 
 ```typescript
-decodeString('X7KQ-2M4P'); // same as decoding 'X7KQ2M4P'
+decode('X7KQ-2M4P'); // same as decode('X7KQ2M4P')
 ```
 
 ## API
