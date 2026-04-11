@@ -3,12 +3,22 @@
 // representation of binary numbers and makes the mask construction loop in
 // getCopyMask read naturally as a scan from left to right across the bits.
 
-// masks for bitwise copying
+/** A bitmask used to extract a contiguous range of bits from a value. */
 export type CopyMask = {
+  /** The bitmask, with 1s in the positions to copy. */
   bits: number;
+  /** The number of positions to right-shift after applying the mask to align the result to LSB. */
   leftShift: number;
 }
 
+/**
+ * Builds a {@link CopyMask} for extracting bits `start` through `end` (inclusive, 1-indexed from MSB)
+ * from a value of `bitLength` bits.
+ * @param start - First bit to include (1 = MSB).
+ * @param end - Last bit to include (inclusive).
+ * @param bitLength - Total number of bits in the source value.
+ * @throws {Error} If `start` or `end` are out of range, or `end < start`.
+ */
 export const getCopyMask = (
   start: number, end: number, bitLength: number,
 ): CopyMask => {
@@ -33,13 +43,17 @@ export const getCopyMask = (
   };
 };
 
-// less than a byte or chunk of data
+/** A fragment of a byte or chunk — fewer bits than the full unit. */
 export type Partial = {
   bits: number;
-  length: number; // num of bits needed (starting from right/least sig inc.)
+  /** Number of significant bits, counted from the LSB. */
+  length: number;
 }
 
-// combine two partial chunks into a complete chunk
+/**
+ * Merges two {@link Partial} fragments into a complete 5-bit chunk value.
+ * @throws {Error} If `left.length + right.length !== 5`.
+ */
 export const combinePartialChunks = (
   left: Partial,
   right: Partial,
@@ -50,7 +64,11 @@ export const combinePartialChunks = (
   return (left.bits << right.length) + right.bits;
 };
 
-// copy bits based on a mask
+/**
+ * Extracts the bits selected by `mask` from `val`, right-aligning the result.
+ * @param val - The source value to extract bits from.
+ * @param mask - A {@link CopyMask} describing which bits to copy.
+ */
 export const copyBits = (val: number, mask: CopyMask): number => {
   const bits = val & mask.bits;
   return bits >> mask.leftShift;
@@ -60,7 +78,10 @@ export const copyBits = (val: number, mask: CopyMask): number => {
 const getEndChunk = (start: number, length: number = 5): number =>
   start + (length - 1) <= 8 ? start + (length - 1) : 8;
 
-// copy an array of bytes into an array of 5 bit chunks (2^5 = 32)
+/**
+ * Splits a byte array into an array of 5-bit values (chunks).
+ * If the total bit count is not a multiple of 5, the final chunk is zero-padded on the right.
+ */
 export const toChunks = (uint8: Uint8Array): number[] => {
   const chunks = [] as number[];
   let startChunk = 1; // 1 index on a byte
@@ -127,7 +148,10 @@ const partialsLength = (
     0;
 };
 
-// combine two or three partial bytes into a complete byte
+/**
+ * Merges an array of {@link Partial} fragments into a single byte value.
+ * @throws {Error} If the combined bit length is not exactly 8.
+ */
 export const combinePartialBytes = (
   partials: Partial[],
 ): number => {
@@ -149,7 +173,12 @@ const getEndByte = (start: number, partialBits: number): number => {
   return toEndOfByte >= 5 ? 5 : start + (toEndOfByte - 1);
 };
 
-// copy an array of 5 bit chunks into an array of bytes
+/**
+ * Reassembles a byte array from an array of 5-bit chunk values.
+ * Trailing zero-padding introduced by {@link toChunks} is silently consumed;
+ * non-zero padding or incomplete bytes cause an error.
+ * @throws {Error} If the chunk data contains non-zero padding bits or an incomplete final byte.
+ */
 export const fromChunks = (chunks: number[]): Uint8Array => {
   const bytes = [] as number[];
   let startByte = 1; // 1 index on a chunk

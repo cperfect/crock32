@@ -13,6 +13,12 @@ import {
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
+/**
+ * Encodes a byte array as a Crockford Base32 string.
+ * @param uint8 - The binary data to encode.
+ * @param checked - If `true`, appends a checksum symbol to the output.
+ * @returns The encoded string, using only characters from the Crockford alphabet.
+ */
 export const encode = (
   uint8: Uint8Array,
   checked: boolean = false,
@@ -32,6 +38,12 @@ export const encode = (
     .join('');
 };
 
+/**
+ * Encodes a UTF-8 string as a Crockford Base32 string.
+ * @param str - The string to encode.
+ * @param checked - If `true`, appends a checksum symbol to the output.
+ * @returns The encoded string, using only characters from the Crockford alphabet.
+ */
 export const encodeString = (
   str: string,
   checked: boolean = false,
@@ -39,6 +51,14 @@ export const encodeString = (
   return encode(encoder.encode(str), checked);
 };
 
+/**
+ * Decodes a Crockford Base32 string to a byte array.
+ * Hyphens are silently ignored and may be used freely as separators.
+ * Input is case-insensitive; visually confusable characters (O→0, I/L→1) are accepted.
+ * @param c32 - The encoded string to decode.
+ * @param checked - If `true`, treats the final symbol as a checksum and validates it.
+ * @throws {Error} If any symbol is invalid, or if `checked=true` and the checksum fails.
+ */
 export const decode = (
   c32: string,
   checked: boolean = false,
@@ -80,6 +100,12 @@ export const decode = (
   return fromChunks(chunks);
 };
 
+/**
+ * Decodes a Crockford Base32 string to a UTF-8 string.
+ * @param c32 - The encoded string to decode.
+ * @param checked - If `true`, treats the final symbol as a checksum and validates it.
+ * @throws {Error} If any symbol is invalid, or if `checked=true` and the checksum fails.
+ */
 export const decodeString = (
   c32: string,
   checked: boolean = false,

@@ -12,7 +12,7 @@ Please follow the [node style guide](https://github.com/felixge/node-style-guide
 
 ## Comments
 
-Standard Doc Comments should be provided for exported module members. Additional inline comments should be added for clarity when needed: e.g. for a complex algorithm, or if something non-obvious or unconventional/non-idiomatic choices have been made. Such comments should include *why* the choice was made.
+JSDoc Comments should be provided for exported module members. Additional inline comments should be added for clarity when needed: e.g. for a complex algorithm, or if something non-obvious or unconventional/non-idiomatic choices have been made. Such comments should include *why* the choice was made.
 
 ## Commit Messages
 

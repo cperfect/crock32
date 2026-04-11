@@ -8,6 +8,10 @@ const CHECKSUM_MODULUS = 37n;
 const toBigInt = (uint8: Uint8Array): bigint =>
   uint8.reduce((acc, byte) => (acc << 8n) | BigInt(byte), 0n);
 
+/**
+ * Calculates the Crockford checksum for the given bytes.
+ * Returns a value in the range 0–36, used as the final symbol when encoding with `checked=true`.
+ */
 export const calculateChecksum = (uint8: Uint8Array): number => {
   if (!uint8.length) {
     return 0;
@@ -16,6 +20,10 @@ export const calculateChecksum = (uint8: Uint8Array): number => {
   return Number(big % CHECKSUM_MODULUS);
 };
 
+/**
+ * Validates that the given checksum matches the calculated checksum for the given bytes.
+ * Returns `true` for empty input — an empty payload has no data to verify against.
+ */
 export const validateChecksum = (
   uint8: Uint8Array,
   checksum: number,
