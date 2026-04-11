@@ -5,28 +5,24 @@ on:
   workflow_dispatch:
 
 jobs:
-  lint:
+  validate:
     name: Validate
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Setup Node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
-          node-version: '16'
+          node-version: '24'
           cache: npm
-      
+
       - name: NPM Install
         run: npm install
-      
+
       - name: Run Lint Check
         run: npm run lint
-      
+
       - name: Run Tests
         run: npm run tests
-
-
-
-  
