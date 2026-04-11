@@ -1,7 +1,5 @@
 # Contributing
 
-We are open to, and grateful for, any contributions made by the community. By contributing to axios, you agree to abide by the [code of conduct](https://github.com/axios/axios/blob/master/CODE_OF_CONDUCT.md).
-
 ## Git Workflow
 
 This repository uses Trunk-Based Development using the default branch `main`. Changes should be divided into consistent working sets (e.g. a complete feature, fix, chore or related set of fixes, chores) on a branch based off `main` and a PR raised.
