@@ -34,4 +34,4 @@ export const DecodingsWithChecksum: string[] = [
   ...ChecksumDecodings,
 ];
 
-export const Ignore = '-';
+export const Ignore = /-/g;

@@ -84,6 +84,12 @@ describe('Decode', () => {
   it('should decode binary', () => {
     expect(decode(BinaryDataCrock32)).to.deep.equal(BinaryData);
   });
+  it('should ignore a single hyphen', () => {
+    expect(decode('C9GQ6-S8')).to.deep.equal(decode('C9GQ6S8'));
+  });
+  it('should ignore multiple hyphens', () => {
+    expect(decode('C9-GQ-6S-8')).to.deep.equal(decode('C9GQ6S8'));
+  });
 });
 
 describe('Decode with checksum', () => {
