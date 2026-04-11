@@ -1,3 +1,19 @@
+// Public API — wires together the encode/decode pipeline.
+//
+// Encode: Uint8Array → toChunks (5-bit values) → symbol lookup in Encodings → joined string.
+// Decode: strip hyphens → each character → reverse lookup in Decodings → fromChunks → Uint8Array.
+//
+// The decoding tables store sets of equivalent characters per index (e.g. '0Oo' all map to
+// value 0) to handle case-insensitivity and visually confusable glyphs in a single structure.
+// This is why findIndex with an includes check is used rather than a Map<char, value> — a
+// map would require a separate entry for every accepted character variant.
+//
+// When checked=true, a checksum symbol is appended on encode (using EncodingsWithChecksum)
+// and stripped and validated on decode before the data is passed to fromChunks.
+//
+// encodeString / decodeString convert between UTF-8 strings and byte arrays using the
+// Web platform TextEncoder / TextDecoder APIs.
+
 import {calculateChecksum, validateChecksum} from './checksum';
 import {fromChunks, toChunks} from './chunks';
 import {

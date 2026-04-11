@@ -1,3 +1,17 @@
+// Crockford Base32 maps 5-bit values to symbols. Since bytes are 8 bits and 5 does not
+// divide 8 evenly, encoding arbitrary binary data requires re-slicing the raw bit stream:
+// every 5 bytes of input produces exactly 8 chunks (LCM(8, 5) = 40 bits).
+//
+// Both toChunks and fromChunks use a sliding window that advances 5 bits at a time across
+// the input. Because 5 and 8 share no common factor, the window boundary usually falls
+// mid-unit, producing a left partial (bits from the current unit, carried forward) and a
+// right partial (bits taken from the start of the next unit to complete the value). The
+// Partial type tracks these fragments; combinePartialChunks / combinePartialBytes merge
+// the two halves.
+//
+// Bit extraction is handled by getCopyMask + copyBits. Pre-computing a bitmask per
+// extraction keeps the core loop readable and the helpers independently testable.
+//
 // Bit positions throughout this file are 1-indexed from the most significant bit
 // (position 1 = MSB, position N = LSB). This matches the left-to-right visual
 // representation of binary numbers and makes the mask construction loop in
