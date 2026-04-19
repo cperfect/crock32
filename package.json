@@ -1,8 +1,9 @@
 {
-  "name": "crock32",
-  "version": "1.0.0",
+  "name": "@cperfect/crock32",
+  "version": "0.1.0",
   "description": "A Typescript implementation of crock32",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/chai": "^4.2.22",
