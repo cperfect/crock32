@@ -14,15 +14,15 @@
 // encodeString / decodeString convert between UTF-8 strings and byte arrays using the
 // Web platform TextEncoder / TextDecoder APIs.
 
-import {calculateChecksum, validateChecksum} from './checksum';
-import {fromChunks, toChunks} from './chunks';
+import {calculateChecksum, validateChecksum} from './checksum.js';
+import {fromChunks, toChunks} from './chunks.js';
 import {
   Decodings,
   DecodingsWithChecksum,
   Encodings,
   EncodingsWithChecksum,
   IgnorePattern,
-} from './symbols';
+} from './symbols.js';
 
 // module-level singletons — both are stateless so safe to share across calls,
 // avoiding repeated allocation on hot paths

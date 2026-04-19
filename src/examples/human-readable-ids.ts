@@ -1,4 +1,4 @@
-import {encode} from '../index';
+import {encode} from '../index.js';
 import {randomBytes} from 'crypto';
 
 const MIN_LENGTH = 2;

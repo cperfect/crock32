@@ -1,8 +1,16 @@
 {
-  "name": "crock32",
-  "version": "1.0.0",
+  "name": "@cperfect/crock32",
+  "version": "0.1.0",
   "description": "A Typescript implementation of crock32",
-  "main": "index.js",
+  "type": "module",
+  "main": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "types": "dist/index.d.ts",
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/chai": "^4.2.22",
@@ -10,13 +18,13 @@
     "@types/node": "^25.6.0",
 "chai": "^4.3.4",
     "eslint": "^10.2.0",
-    "mocha": "^9.1.3",
-    "ts-node": "^10.4.0",
+    "mocha": "^10.8.2",
+    "tsx": "^4.19.3",
     "typescript": "^6.0.2",
     "typescript-eslint": "^8.58.1"
   },
   "scripts": {
-    "tests": "mocha --require ts-node/register 'test/**/*.ts'",
+    "tests": "node --import ./node_modules/tsx/dist/esm/index.mjs node_modules/.bin/mocha 'test/**/*.ts'",
     "lint": "eslint src",
     "lint:fix": "npm run lint -- --fix",
     "build": "tsc",
@@ -28,5 +36,8 @@
   "license": "MIT",
   "files": [
     "dist/**/*"
-  ]
+  ],
+  "overrides": {
+    "serialize-javascript": "7.0.5"
+  }
 }
