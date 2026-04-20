@@ -34,6 +34,13 @@
   },
   "author": "Chris Perfect (cperfect)",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cperfect/crock32.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "files": [
     "dist/**/*"
   ],
