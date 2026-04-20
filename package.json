@@ -27,7 +27,7 @@
     "tests": "node --import ./node_modules/tsx/dist/esm/index.mjs node_modules/.bin/mocha 'test/**/*.ts'",
     "lint": "eslint src",
     "lint:fix": "npm run lint -- --fix",
-    "build": "tsc",
+    "build": "rm -rf dist && tsc",
     "prepare": "npm run build",
     "prepublishOnly": "npm run tests && npm run lint",
     "preversion": "npm run lint"
