@@ -89,3 +89,7 @@ The encoding alphabet omits `I`, `L`, `O`, and `U` to avoid visual confusion wit
 
 When `checked=true`, a single checksum symbol is appended. The checksum is computed as `toBigInt(bytes) % 37`, where 37 is prime and larger than the 32 data symbols plus 5 checksum-only symbols, guaranteeing a unique check value for every possible remainder. BigInt is used because the input can be arbitrarily long. The 5 checksum symbols (`* ~ $ = U`) are distinct from the data alphabet.
 
+## Contributing and releasing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for development guidelines and [RELEASE.md](./RELEASE.md) for the release process.
+
