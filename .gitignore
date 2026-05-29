@@ -6,6 +6,10 @@
 #scratch dirs
 **/scratch/
 
+# local Claude Code config
+.claude/settings.local.json
+.claude/statusline-command.sh
+
 #direnv
 .envrc
 
