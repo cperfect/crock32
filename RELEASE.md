@@ -31,28 +31,38 @@ The package on npmjs.com is configured to require 2FA and disallow tokens.
 
 ## Publishing a new release
 
-Run these steps from a clean `main` branch.
+All changes — including version bumps — go through a PR. Releases only ever happen from `main`. The release workflow reads the version from `package.json` and creates the matching `vX.Y.Z` tag itself; never push tags from your local machine.
 
-### 1. Bump the version
+### 1. Open a release PR with the version bump
 
-```bash
-npm version patch   # 0.1.0 → 0.1.1  (bug fixes)
-npm version minor   # 0.1.0 → 0.2.0  (new features)
-npm version major   # 0.1.0 → 1.0.0  (breaking changes)
-```
-
-This updates `package.json`, creates a commit, and creates a git tag (e.g. `v0.1.1`).
-
-### 2. Push the commit and tag
+From an up-to-date `main`:
 
 ```bash
-git push && git push --tags
+git switch main && git pull
+git switch -c release/vX.Y.Z   # fill in the target version
+
+npm version patch --no-git-tag-version   # 0.1.0 → 0.1.1  (bug fixes)
+npm version minor --no-git-tag-version   # 0.1.0 → 0.2.0  (new features)
+npm version major --no-git-tag-version   # 0.1.0 → 1.0.0  (breaking changes)
 ```
+
+`--no-git-tag-version` updates `package.json` and `package-lock.json` only — no commit, no tag.
+
+```bash
+git add package.json package-lock.json
+git commit -m "chore(release): vX.Y.Z"
+git push -u origin release/vX.Y.Z
+gh pr create --fill
+```
+
+### 2. Merge the PR
+
+Wait for CI (`Validate`) to pass, get the PR reviewed, and merge it into `main`.
 
 ### 3. Trigger the release workflow
 
-1. Go to the repo on GitHub → **Actions** → **Release**
-2. Click **Run workflow** → select branch `main` → **Run workflow**
-3. When the job reaches the approval gate, review and **approve** it
+1. Switch to `main` on GitHub (the workflow refuses to run from anywhere else).
+2. Go to **Actions** → **Release** → **Run workflow** → branch `main` → **Run workflow**.
+3. When the job reaches the approval gate, review and **approve** it.
 
-The workflow will then lint, test, build, create a GitHub release with auto-generated notes, and publish to npm.
+The workflow will lint, test, build, create the `vX.Y.Z` tag + GitHub release with auto-generated notes, and publish to npm.
